@@ -1,15 +1,21 @@
 /**
- * @description      :
+    * @description      : 
+    * @author           : DHANUSH
+    * @group            : 
+    * @created          : 28/10/2025 - 16:07:37
+    * 
+    * MODIFICATION LOG
+    * - Version         : 1.0.0
+    * - Date            : 28/10/2025
+    * - Author          : DHANUSH
+    * - Modification    : 
+**/
+/**
+ * @description      : Chat page where user interacts with Soul AI
  * @author           : DHANUSH
- * @group            :
- * @created          : 28/10/2025 - 12:10:45
- *
- * MODIFICATION LOG
- * - Version         : 1.0.0
- * - Date            : 28/10/2025
- * - Author          : DHANUSH
- * - Modification    :
- **/
+ * @created          : 28/10/2025
+ */
+
 import { useState, useRef, useEffect } from "react";
 import sampleData from "./Data/sampleData.json";
 
@@ -24,6 +30,7 @@ const findResponse = (query) => {
 
   return found ? found.response : "Sorry, Did not understand your query!";
 };
+
 function ChatPage() {
   const scrollRef = useRef();
   const [messages, setMessages] = useState([]); // {from:'user'|'ai', text, liked: null|true|false}
@@ -33,7 +40,7 @@ function ChatPage() {
   const [conversationSaved, setConversationSaved] = useState(false);
 
   useEffect(() => {
-    // initial cards on home as example quick prompts
+    // initial cards as quick prompts
     if (messages.length === 0) {
       const quick = [
         "Hi, what is the weather",
@@ -44,6 +51,22 @@ function ChatPage() {
     }
   }, []);
 
+  // ✅ Load previous conversation from localStorage (persistence fix)
+  useEffect(() => {
+    const savedConversations = JSON.parse(
+      localStorage.getItem("conversations") || "[]"
+    );
+    if (savedConversations.length > 0) {
+      const lastConversation = savedConversations[0];
+      if (lastConversation?.messages) {
+        setMessages(lastConversation.messages);
+        setRating(lastConversation.rating || 0);
+        setComment(lastConversation.comment || "");
+      }
+    }
+  }, []);
+
+  // Auto scroll on new message
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -57,10 +80,12 @@ function ChatPage() {
       prev.map((m) => (m.id === id ? { ...m, liked: val } : m))
     );
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const q = input.trim();
     if (!q) return;
+
     const userMsg = {
       from: "user",
       text: q,
@@ -78,10 +103,10 @@ function ChatPage() {
         id: Date.now() + Math.random(),
         liked: null,
       };
-
       setMessages((prev) => [...prev, aiMsg]);
     }, 300);
   };
+
   const handleSave = () => {
     const conv = {
       id: Date.now(),
@@ -94,8 +119,9 @@ function ChatPage() {
     const existing = JSON.parse(localStorage.getItem("conversations") || "[]");
     existing.unshift(conv);
     localStorage.setItem("conversations", JSON.stringify(existing));
+
     setConversationSaved(true);
-    alert("Conversation saved! You can view it at Past Conversation.");
+    alert("Conversation saved! You can view it at Past Conversations.");
   };
 
   return (
@@ -114,35 +140,29 @@ function ChatPage() {
           <small>Get immediate AI generated response</small>
         </div>
         <div className="card">
-          Hi, what is the location
+          Hi, what is my location
           <br />
           <small>Get immediate AI generated response</small>
         </div>
         <div className="card">
-          Hi, what is the temparature
+          Hi, what is the temperature
           <br />
           <small>Get immediate AI generated response</small>
         </div>
         <div className="card">
-          Hi, How are you
+          Hi, how are you
           <br />
           <small>Get immediate AI generated response</small>
         </div>
       </div>
 
-      <div ref={scrollRef} className="chat-area" role="logo" aria-live="polite">
+      <div ref={scrollRef} className="chat-area" aria-live="polite">
         {messages.map((m) => (
           <div
             key={m.id}
             className={`message ${m.from === "user" ? "user" : "ai"}`}
           >
-            {m.from === "ai" ? (
-              <>
-                <p>{m.text}</p>
-              </>
-            ) : (
-              <div>{m.text}</div>
-            )}
+            {m.from === "ai" ? <p>{m.text}</p> : <div>{m.text}</div>}
 
             {m.from === "ai" && (
               <div className="feedback-floater" aria-hidden>
@@ -152,7 +172,6 @@ function ChatPage() {
                 >
                   👍
                 </button>
-
                 <button
                   onClick={() => toggleLike(m.id, false)}
                   className="feedback-btn"
@@ -164,7 +183,7 @@ function ChatPage() {
 
             {m.from === "ai" && m.liked !== null && (
               <div style={{ fontSize: 12, marginTop: 6 }}>
-                {m.liked ? "You liked this answer" : "you disliked this answer"}
+                {m.liked ? "You liked this answer" : "You disliked this answer"}
               </div>
             )}
           </div>
@@ -178,7 +197,6 @@ function ChatPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
-
         <div className="conversation-actions">
           <button type="submit" className="ask">
             Ask

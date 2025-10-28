@@ -1,72 +1,79 @@
 /**
-    * @description      : 
-    * @author           : DHANUSH
-    * @group            : 
-    * @created          : 28/10/2025 - 13:00:24
-    * 
-    * MODIFICATION LOG
-    * - Version         : 1.0.0
-    * - Date            : 28/10/2025
-    * - Author          : DHANUSH
-    * - Modification    : 
-**/
-import React, { useEffect, useState } from "react";
+ * @description      :
+ * @author           : DHANUSH
+ * @group            :
+ * @created          : 28/10/2025 - 16:08:01
+ *
+ * MODIFICATION LOG
+ * - Version         : 1.0.0
+ * - Date            : 28/10/2025
+ * - Author          : DHANUSH
+ * - Modification    :
+ **/
+/**
+ * @description      : Displays list of past saved conversations
+ * @author           : DHANUSH
+ * @created          : 28/10/2025
+ */
 
-export default function HistoryPage() {
-  const [convs, setConvs] = useState([]);
+import { useEffect, useState } from "react";
+
+function HistoryPage() {
+  const [conversations, setConversations] = useState([]);
+
+  // ✅ Load from localStorage (persistent)
   useEffect(() => {
-    const existing = JSON.parse(localStorage.getItem("conversations") || "[]");
-    setConvs(existing);
+    const saved = JSON.parse(localStorage.getItem("conversations") || "[]");
+    setConversations(saved);
   }, []);
 
-  function viewConv(conv) {
-    // show details in an alert for simplicity
-    const lines = conv.messages.map(
-      (m) =>
-        `${m.from.toUpperCase()}: ${m.text}${
-          m.from === "ai" && m.liked !== null
-            ? " (" + (m.liked ? "liked" : "disliked") + ")"
-            : ""
-        }`
-    );
-    alert(
-      lines.join("\n") +
-        "\n\nRating: " +
-        (conv.rating || "None") +
-        "\nComment: " +
-        (conv.comment || "")
-    );
-  }
-
   return (
-    <div style={{ padding: 24 }}>
+    <div className="history-container">
       <h2>Past Conversations</h2>
-      <div className="history-list">
-        {convs.length === 0 && <div>No saved conversations yet.</div>}
-        {convs.map((c) => (
-          <div key={c.id} className="history-item">
-            <div>
-              <div style={{ fontWeight: 600 }}>
-                Conversation {new Date(c.createdAt).toLocaleString()}
+      {conversations.length === 0 ? (
+        <p>No saved conversations found.</p>
+      ) : (
+        <div className="history-list">
+          {conversations.map((conv) => (
+            <div key={conv.id} className="history-card">
+              <div className="history-header">
+                <strong>Conversation ID:</strong> {conv.id}
+                <br />
+                <small>
+                  {new Date(conv.createdAt).toLocaleString() || "Unknown date"}
+                </small>
               </div>
-              <div style={{ fontSize: 13, color: "#666" }}>
-                {c.messages.length} messages • Rating: {c.rating || "—"}
+
+              <div className="history-messages">
+                {conv.messages.map((m, i) => (
+                  <div
+                    key={i}
+                    className={`message ${m.from === "user" ? "user" : "ai"}`}
+                  >
+                    {m.from === "ai" ? <p>{m.text}</p> : <div>{m.text}</div>}
+                    {m.from === "ai" && m.liked !== null && (
+                      <small>{m.liked ? "👍 Liked" : "👎 Disliked"}</small>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="history-feedback">
+                <p>
+                  <strong>Rating:</strong> {conv.rating || "Not rated"}
+                </p>
+                {conv.comment && (
+                  <p>
+                    <strong>Feedback:</strong> {conv.comment}
+                  </p>
+                )}
               </div>
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => viewConv(c)}>View</button>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(JSON.stringify(c));
-                  alert("Copied conversation JSON to clipboard");
-                }}
-              >
-                Copy
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+export default HistoryPage;
