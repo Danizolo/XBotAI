@@ -183,7 +183,7 @@ function ChatPage() {
           <button type="submit" className="ask">
             Ask
           </button>
-          <button type="submit" className="save" onClick={handleSave}>
+          <button type="button" className="save" onClick={handleSave}>
             Save
           </button>
         </div>
