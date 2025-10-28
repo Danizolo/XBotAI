@@ -29,7 +29,7 @@ function App() {
 
       <main className="main">
         <header className="topbar">
-          <h1>XBOT-AI</h1>
+          <h1>Bot AI</h1>
         </header>
 
         <Routes>
