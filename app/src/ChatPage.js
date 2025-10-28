@@ -19,7 +19,7 @@ const findResponse = (query) => {
   const q = query.trim().toLowerCase();
   let found = sampleData.find((s) => s.question.toLowerCase() === q);
   if (!found)
-    found = sampleData.find((s) => q.includes(s.questions.toLowerCase()));
+    found = sampleData.find((s) => q.includes(s.question.toLowerCase()));
   if (!found) found = sampleData.find((s) => s.question.includes(q));
 
   return found ? found.response : "Sorry, Did not understand your query!";
